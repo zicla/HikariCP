@@ -100,10 +100,14 @@ public class HikariPool extends PoolBase implements HikariPoolMXBean, IBagStateL
    {
       super(config);
 
+      // 构建一个connectionBag用于保存连接, connectionBag是连接池的核心
       this.connectionBag = new ConcurrentBag<>(this);
+      //初始化连接计数器, 用于统计连接池中的连接数量
       this.totalConnections = new AtomicInteger();
+      //根据是否允许挂起连接池, 初始化锁
       this.suspendResumeLock = config.isAllowPoolSuspension() ? new SuspendResumeLock() : SuspendResumeLock.FAUX_LOCK;
 
+      //连接池统计
       if (config.getMetricsTrackerFactory() != null) {
          setMetricsTrackerFactory(config.getMetricsTrackerFactory());
       }
@@ -113,6 +117,7 @@ public class HikariPool extends PoolBase implements HikariPoolMXBean, IBagStateL
 
       setHealthCheckRegistry(config.getHealthCheckRegistry());
 
+      //注册 JMX 相关的 bean
       registerMBeans(this);
 
       checkFailFast();
@@ -651,4 +656,5 @@ public class HikariPool extends PoolBase implements HikariPoolMXBean, IBagStateL
          super("Failed to initialize pool: " + t.getMessage(), t);
       }
    }
+
 }
